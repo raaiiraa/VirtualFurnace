@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class VFurnaceManager implements Listener
         Player p = e.getPlayer();
         if(e.getAction() == Action.RIGHT_CLICK_BLOCK)
         {
-            if(e.getClickedBlock().getType() == Material.FURNACE)
+            if(e.getClickedBlock().getType() == Material.BLAST_FURNACE)
             {
                 if(!furnaces.containsKey(p.getUniqueId()))
                 {
@@ -76,8 +77,33 @@ public class VFurnaceManager implements Listener
         }
     }
 
+    private long firstSmelt;
+    private long lastSmelt;
+    @EventHandler
+    public void onFurnaceSmelt(FurnaceSmeltEvent e)
+    {
+        if(firstSmelt == 0)
+        {
+            firstSmelt = System.currentTimeMillis();
+        }else
+        {
+            lastSmelt = System.currentTimeMillis();
+
+            long smeltTime = lastSmelt-firstSmelt;
+
+            long smeltTicks = Math.floorDiv(smeltTime, 50);
+            Bukkit.broadcastMessage("Ticks to smelt: "+smeltTicks);
+        }
+
+    }
+
     public HashMap<UUID, VFurnace> getFurnaces()
     {
         return furnaces;
+    }
+
+    public HashMap<Material, Material> getResults()
+    {
+        return results;
     }
 }

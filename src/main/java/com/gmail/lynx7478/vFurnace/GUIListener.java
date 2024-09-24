@@ -26,7 +26,6 @@ public class GUIListener implements Listener
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e)
     {
-        Bukkit.broadcastMessage("click");
         manager.handleClick(e);
     }
 

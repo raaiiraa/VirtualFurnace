@@ -1,10 +1,9 @@
 package com.gmail.lynx7478.vFurnace;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MenuType;
 import org.bukkit.inventory.view.FurnaceView;
@@ -29,17 +28,14 @@ public class VFurnace implements InventoryHandler {
 
     private int taskSmelt;
 
+    private boolean smelting;
+
 
     public VFurnace(Player holder)
     {
         this.furnace = MenuType.FURNACE.create(holder, "Virtual Furnace");
         this.p = holder;
-    }
-
-    private boolean checkSmelt()
-    {
-
-        return true;
+        smelting = false;
     }
 
     public void openInventory()
@@ -50,6 +46,41 @@ public class VFurnace implements InventoryHandler {
     public FurnaceView getFurnace()
     {
         return furnace;
+    }
+
+    // Slot 1: FUEL
+    // Slot 0: IN
+    // Slot 2: OUT
+    private boolean checkSmelt(InventoryClickEvent e)
+    {
+        Bukkit.broadcastMessage(e.getSlotType().toString());
+        if(e.getSlotType() == InventoryType.SlotType.QUICKBAR ||
+        e.getSlotType() == InventoryType.SlotType.CONTAINER)
+        {
+            Bukkit.broadcastMessage("Not furnace");
+            return false;
+        }
+        ItemStack cursor = e.getCursor();
+
+        if(furnace.getItem(1).getType() != Material.AIR)
+        {
+            Bukkit.broadcastMessage("Slot 1 not AIR");
+            if(cursor.getType() != Material.AIR)
+            {
+                Bukkit.broadcastMessage("And cursor is not air");
+                return true;
+            }
+        }else if(furnace.getItem(0).getType() != Material.AIR && cursor.getType() != Material.AIR)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void smelt()
+    {
+        return;
     }
 
     @Override
@@ -74,6 +105,18 @@ public class VFurnace implements InventoryHandler {
     public void onClick(InventoryClickEvent e)
     {
         Player p = (Player) e.getWhoClicked();
+        Bukkit.broadcastMessage(e.getAction().toString());
+        if(e.getAction() == InventoryAction.PLACE_ALL
+        || e.getAction() == InventoryAction.PLACE_ONE
+        || e.getAction() == InventoryAction.PLACE_SOME)
+        {
+            Bukkit.broadcastMessage("e");
+            Bukkit.broadcastMessage(e.getCursor().getType().toString());
+            Bukkit.broadcastMessage(String.valueOf(checkSmelt(e)));
+        }
+
+        //TODO: Handle picking up. Essentially cancel the smelting.
+        // Might have to also consider swapping of fuels/inputs.
     }
 
     @Override
@@ -82,4 +125,6 @@ public class VFurnace implements InventoryHandler {
         Bukkit.getServer().getScheduler().cancelTask(taskSmelt);
         timeClose=System.currentTimeMillis();
     }
+
+
 }
