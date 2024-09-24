@@ -1,0 +1,5 @@
+name: VirtualFurnace
+version: '1.0'
+author: 'Rai'
+main: com.gmail.lynx7478.vFurnace.Main
+api-version: '1.21'
