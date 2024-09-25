@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MenuType;
 import org.bukkit.inventory.view.FurnaceView;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class VFurnace implements InventoryHandler {
 
@@ -114,13 +115,13 @@ public class VFurnace implements InventoryHandler {
         }
         in.setAmount(2);
         int times[] = {0, Float.floatToIntBits(furnace.getCookTime())};
-        taskSmelt = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
+        taskSmelt = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new BukkitRunnable()
         {
 
             @Override
             public void run()
             {
-                Bukkit.broadcastMessage(furnace.getItem(0).getType().toString());
+                //TODO: Cancel if fuel or input runs out.
                 if(furnace.getCookTime() == 1)
                 {
                     if(furnace.getItem(2).getType() == Material.AIR)
