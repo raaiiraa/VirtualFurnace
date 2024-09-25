@@ -31,6 +31,8 @@ public class VFurnaceManager implements Listener
 
         results = new HashMap<Material, Material>();
 
+        results.put(Material.IRON_ORE, Material.IRON_INGOT);
+
         // Add fuels.
         // fuels.put(Material.COAL, 8*20);
         // fuels.put(Material.CHARCOAL, 8*20);
@@ -43,7 +45,7 @@ public class VFurnaceManager implements Listener
             //    fuels.put(m, 15 * 20);
             // }
 
-            if(mName.contains("_ORE"))
+            /* if(mName.contains("_ORE"))
             {
                 String mNameEdit = mName.replace("_ORE","_INGOT");
                 Material mEdit = Material.getMaterial(mNameEdit);
@@ -51,7 +53,7 @@ public class VFurnaceManager implements Listener
                 //TODO Debug
                 System.out.println(mName);
                 System.out.println(mNameEdit);
-            }
+            } */
 
         }
     }
