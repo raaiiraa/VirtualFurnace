@@ -102,6 +102,7 @@ public class VFurnace implements InventoryHandler {
         return false;
     }
 
+    //TODO: Rewrite this piece of shit method. Create two methods, burn and smelt or something like that.
     private void smelt(ItemStack nItem)
     {
         if(nItem.getType().isFuel())
@@ -113,49 +114,82 @@ public class VFurnace implements InventoryHandler {
             this.fuel = furnace.getItem(1);
             this.in = nItem;
         }
-        in.setAmount(2);
         int times[] = {0, Float.floatToIntBits(furnace.getCookTime())};
-        taskSmelt = Bukkit.getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new BukkitRunnable()
-        {
-
+        final boolean[] has = new boolean[2];
+        taskSmelt = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable() {
             @Override
             public void run()
             {
                 //TODO: Cancel if fuel or input runs out.
+
                 if(furnace.getCookTime() == 1)
                 {
                     if(furnace.getItem(2).getType() == Material.AIR)
                     {
-                        furnace.setItem(2, new ItemStack(Material.IRON_INGOT));
+                        if(has[0])
+                        {
+                            furnace.setItem(2, new ItemStack(Material.IRON_INGOT));
+                            Main.getInstance().getServer().getPluginManager().callEvent(new VFurnaceSmeltEvent(Main.getInstance().getvFurnaceManager().getFurnaces().get(p.getUniqueId())));
+                        }
                     }else
                     {
-                        furnace.getItem(2).setAmount(furnace.getItem(2).getAmount()+1);
+                        if(has[0])
+                        {
+                            furnace.getItem(2).setAmount(furnace.getItem(2).getAmount()+1);
+                            Main.getInstance().getServer().getPluginManager().callEvent(new VFurnaceSmeltEvent(Main.getInstance().getvFurnaceManager().getFurnaces().get(p.getUniqueId())));
+                        }
                     }
 
                     furnace.getItem(0).setAmount(furnace.getItem(0).getAmount()-1);
-                    times[1]=0;
+                    times[0]=0;
+
+                    if(furnace.getItem(0).getType() != Material.AIR)
+                    {
+                        has[0] = true;
+                    }else
+                    {
+                        has[0] = false;
+                    }
                 }
 
                 if(furnace.getBurnTime() == 0)
                 {
                     fuel.setAmount(fuel.getAmount()-1);
                     furnace.setItem(1, fuel);
-                    times[0]=0;
+                    times[1]=0;
+                    if(furnace.getItem(1).getType() != Material.AIR)
+                    {
+                        has[1] = true;
+                    }else
+                    {
+                        has[1] = false;
+                    }
                 }
 
-                furnace.setBurnTime((int) Fuel.COAL.getBurnTicks()-times[0], Fuel.COAL.getBurnTicks());
-                furnace.setCookTime(times[1], 200);
-                times[0] = times[0] + 10;
-                times[1] = times[1] + 10;
-            }
-        },0L, 10L);
+                furnace.setBurnTime((int) Fuel.COAL.getBurnTicks()-times[1], Fuel.COAL.getBurnTicks());
+                furnace.setCookTime(times[0], 200);
+                if(has[0])
+                {
+                    times[0] = times[0] + 10;
+                }
 
+                if(has[1])
+                {
+                    times[1] = times[1] + 10;
+                }
+            }
+        }, 0L, 10L);
         return;
     }
 
     private void doSmelt()
     {
         
+    }
+
+    public int getTaskSmelt()
+    {
+        return taskSmelt;
     }
 
     @Override
