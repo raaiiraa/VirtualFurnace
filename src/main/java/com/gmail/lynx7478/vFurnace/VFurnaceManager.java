@@ -99,6 +99,14 @@ public class VFurnaceManager implements Listener
 
     }
 
+    @EventHandler
+    public void onVFurnaceSmelt(VFurnaceSmeltEvent e)
+    {
+        VFurnace furnace = e.getFurnace();
+        Bukkit.broadcastMessage("Canceling smelt");
+        Main.getInstance().getServer().getScheduler().cancelTask(furnace.getTaskSmelt());
+    }
+
     public HashMap<UUID, VFurnace> getFurnaces()
     {
         return furnaces;
