@@ -105,6 +105,19 @@ public class VFurnace implements InventoryHandler {
         return false;
     }
 
+    private void burn(InventoryClickEvent e)
+    {
+        if(checkSmelt(e))
+        {
+
+        }
+    }
+
+    private void smelt()
+    {
+
+    }
+
     //TODO: Rewrite this piece of shit method. Create two methods, burn and smelt or something like that.
     private void smelt(ItemStack nItem)
     {
