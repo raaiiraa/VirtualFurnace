@@ -7,13 +7,14 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MenuType;
 import org.bukkit.inventory.view.FurnaceView;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class VFurnace implements InventoryHandler {
 
     // Slot 1: FUEL
     // Slot 0: IN
     // Slot 2: OUT
+    private final VFurnace instance;
+
     private final FurnaceView furnace;
 
     private VFurnaceManager furnaceManager;
@@ -41,6 +42,8 @@ public class VFurnace implements InventoryHandler {
         smelting = false;
 
         furnaceManager = Main.getInstance().getvFurnaceManager();
+
+        instance = this;
     }
 
     public void openInventory()
