@@ -109,7 +109,26 @@ public class VFurnace implements InventoryHandler {
     {
         if(checkSmelt(e))
         {
+            int ticks = 0;
+            int taskBurn = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
+            {
+                @Override
+                public void run()
+                {
 
+                }
+            },0L, 10L);
+
+            // Schedule task for end -> Delay = burnTicks of item
+            int taskFuel = Main.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    furnace.getItem(1).setAmount(furnace.getItem(1).getAmount()-1);
+                    Main.getInstance().getServer().getScheduler().cancelTask(taskBurn);
+                }
+            }, Fuel.COAL.getBurnTicks());
         }
     }
 
