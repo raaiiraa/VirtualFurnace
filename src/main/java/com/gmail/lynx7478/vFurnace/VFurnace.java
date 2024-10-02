@@ -32,14 +32,14 @@ public class VFurnace implements InventoryHandler {
 
     private int taskSmelt;
 
-    private boolean smelting;
+    private boolean burning;
 
 
     public VFurnace(Player holder)
     {
         this.furnace = MenuType.FURNACE.create(holder, "Virtual Furnace");
         this.p = holder;
-        smelting = false;
+        burning = false;
 
         furnaceManager = Main.getInstance().getvFurnaceManager();
 
@@ -79,7 +79,8 @@ public class VFurnace implements InventoryHandler {
                 {
                     if(fuelType != Material.AIR || inType != Material.AIR)
                     {
-                        smelt(e.getCurrentItem());
+                        burn(e);
+                        smelt(e);
                         return true;
                     }
                 }
@@ -105,17 +106,24 @@ public class VFurnace implements InventoryHandler {
         return false;
     }
 
+    private Fuel getFuel()
+    {
+        return Fuel.valueOf(furnace.getItem(1).getType().toString());
+    }
+
     private void burn(InventoryClickEvent e)
     {
         if(checkSmelt(e))
         {
             int ticks = 0;
+            burning = true;
+            // Animation
             int taskBurn = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
             {
                 @Override
                 public void run()
                 {
-
+                    furnace.setBurnTime((int) Fuel.COAL.getBurnTicks()-ticks, Fuel.COAL.getBurnTicks());
                 }
             },0L, 10L);
 
@@ -127,18 +135,27 @@ public class VFurnace implements InventoryHandler {
                 {
                     furnace.getItem(1).setAmount(furnace.getItem(1).getAmount()-1);
                     Main.getInstance().getServer().getScheduler().cancelTask(taskBurn);
+                    burn(e);
                 }
             }, Fuel.COAL.getBurnTicks());
+        }else
+        {
+            burning = false;
+        }
+
+
+    }
+
+    private void smelt(InventoryClickEvent e)
+    {
+        if(checkSmelt(e))
+        {
+
         }
     }
 
-    private void smelt()
-    {
-
-    }
-
     //TODO: Rewrite this piece of shit method. Create two methods, burn and smelt or something like that.
-    private void smelt(ItemStack nItem)
+    private void smeltTrash(ItemStack nItem)
     {
         if(nItem.getType().isFuel())
         {
@@ -217,11 +234,6 @@ public class VFurnace implements InventoryHandler {
         return;
     }
 
-    private void doSmelt()
-    {
-        
-    }
-
     public int getTaskSmelt()
     {
         return taskSmelt;
@@ -254,7 +266,7 @@ public class VFurnace implements InventoryHandler {
         || e.getAction() == InventoryAction.PLACE_SOME
         || e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
         {
-            smelting = checkSmelt(e);
+            checkSmelt(e);
         }
 
         //TODO: Handle picking up. Essentially cancel the smelting.
