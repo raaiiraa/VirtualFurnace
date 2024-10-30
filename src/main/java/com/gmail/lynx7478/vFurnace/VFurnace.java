@@ -142,15 +142,59 @@ public class VFurnace implements InventoryHandler {
         {
             burning = false;
         }
-
-
     }
 
     private void smelt(InventoryClickEvent e)
     {
         if(checkSmelt(e))
         {
+            final int[] cook = {0};
+            // Smelting animation.
+            int taskSmelt = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if(burning)
+                    {
+                        int taskSmelt = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                furnace.setCookTime(cook[0], 200);
+                                cook[0] = cook[0] + 10;
+                            }
+                        },0L,10L);
+                    }else
+                    {
+                        furnace.setCookTime(0,0);
+                    }
+                }
+            }, 0L, 10L);
 
+            int taskOut = Main.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(Main.getInstance(), new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    Result r = Result.getByMaterial(in.getType());
+
+                    if(out == null || out.getType() == Material.AIR)
+                    {
+                        out = new ItemStack(r.getResult());
+                    }else
+                    {
+                        out.setAmount(out.getAmount()+1);
+                    }
+
+                    furnace.getItem(0).setAmount(furnace.getItem(0).getAmount()-1);
+
+                    furnace.setItem(2,out);
+
+                    smelt(e);
+                }
+            },100L);
         }
     }
 
