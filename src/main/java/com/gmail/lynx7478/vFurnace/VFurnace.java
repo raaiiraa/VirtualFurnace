@@ -79,8 +79,6 @@ public class VFurnace implements InventoryHandler {
                 {
                     if(fuelType != Material.AIR || inType != Material.AIR)
                     {
-                        burn(e);
-                        smelt(e);
                         return true;
                     }
                 }
@@ -310,7 +308,11 @@ public class VFurnace implements InventoryHandler {
         || e.getAction() == InventoryAction.PLACE_SOME
         || e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
         {
-            checkSmelt(e);
+            if(checkSmelt(e))
+            {
+                burn(e);
+                smelt(e);
+            }
         }
 
         //TODO: Handle picking up. Essentially cancel the smelting.
