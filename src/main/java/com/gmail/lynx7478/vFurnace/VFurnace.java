@@ -33,6 +33,7 @@ public class VFurnace implements InventoryHandler {
     private int taskSmelt;
 
     private boolean burning;
+    private boolean smelting;
 
 
     public VFurnace(Player holder)
@@ -146,6 +147,16 @@ public class VFurnace implements InventoryHandler {
     {
         if(checkSmelt(e))
         {
+            if(smelting)
+            {
+                return;
+            }
+            smelting = true;
+            Bukkit.broadcastMessage("Cursor:"+e.getCursor().getType().toString());
+            Bukkit.broadcastMessage("CurrentItem:"+e.getCurrentItem().getType().toString());
+            in = e.getCursor();
+            Material inMat = e.getCursor().getType();
+            Bukkit.broadcastMessage(in.getType().toString());
             final int[] cook = {0};
             // Smelting animation.
             int taskSmelt = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
@@ -176,7 +187,18 @@ public class VFurnace implements InventoryHandler {
                 @Override
                 public void run()
                 {
-                    Result r = Result.getByMaterial(in.getType());
+                    Result r = null;
+                    for(Result result : Result.values())
+                    {
+                        Bukkit.broadcastMessage(result.toString());
+                        Bukkit.broadcastMessage("IN:"+inMat.toString());
+                        Bukkit.broadcastMessage("RESULT:"+result.getMaterial().toString());
+                        if(result.getMaterial() == inMat)
+                        {
+                            Bukkit.broadcastMessage("Found result!");
+                            r = result;
+                        }
+                    }
 
                     if(out == null || out.getType() == Material.AIR)
                     {
@@ -190,6 +212,7 @@ public class VFurnace implements InventoryHandler {
 
                     furnace.setItem(2,out);
 
+                    smelting = false;
                     smelt(e);
                 }
             },100L);

@@ -1,5 +1,6 @@
 package com.gmail.lynx7478.vFurnace;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 
 public enum Result
@@ -7,12 +8,14 @@ public enum Result
 
     IRON(Material.IRON_ORE, Material.IRON_INGOT);
 
-    public static Result getByMaterial(Material m)
+    public static Result getByMaterial(String m)
     {
         for(Result r : Result.values())
         {
-            if(r.getMaterial() == m)
+            Bukkit.broadcastMessage(r.getMaterial().toString());
+            if(r.getMaterial().toString() == m)
             {
+                Bukkit.broadcastMessage("Found result!");
                 return r;
             }
         }
