@@ -23,6 +23,7 @@ public class VFurnace implements InventoryHandler {
 
     private ItemStack fuel;
     private ItemStack in;
+    private Material inMat;
     private ItemStack out;
 
     private int burnTime;
@@ -152,10 +153,8 @@ public class VFurnace implements InventoryHandler {
                 return;
             }
             smelting = true;
-            Bukkit.broadcastMessage("Cursor:"+e.getCursor().getType().toString());
-            Bukkit.broadcastMessage("CurrentItem:"+e.getCurrentItem().getType().toString());
-            in = e.getCursor();
-            Material inMat = e.getCursor().getType();
+            // in = e.getCursor(); Buggy as shit
+            inMat = e.getCursor().getType();
             Bukkit.broadcastMessage(in.getType().toString());
             final int[] cook = {0};
             // Smelting animation.
@@ -187,18 +186,7 @@ public class VFurnace implements InventoryHandler {
                 @Override
                 public void run()
                 {
-                    Result r = null;
-                    for(Result result : Result.values())
-                    {
-                        Bukkit.broadcastMessage(result.toString());
-                        Bukkit.broadcastMessage("IN:"+inMat.toString());
-                        Bukkit.broadcastMessage("RESULT:"+result.getMaterial().toString());
-                        if(result.getMaterial() == inMat)
-                        {
-                            Bukkit.broadcastMessage("Found result!");
-                            r = result;
-                        }
-                    }
+                    Result r = Result.getByMaterial(inMat);
 
                     if(out == null || out.getType() == Material.AIR)
                     {
@@ -214,6 +202,9 @@ public class VFurnace implements InventoryHandler {
 
                     smelting = false;
                     smelt(e);
+
+                    //TODO: Doesn't resmelt.
+                    //TODO: Doesn't seem to consume fuel.
                 }
             },100L);
         }

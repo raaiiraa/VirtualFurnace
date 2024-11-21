@@ -8,14 +8,13 @@ public enum Result
 
     IRON(Material.IRON_ORE, Material.IRON_INGOT);
 
-    public static Result getByMaterial(String m)
+    public static Result getByMaterial(Material m)
     {
         for(Result r : Result.values())
         {
             Bukkit.broadcastMessage(r.getMaterial().toString());
-            if(r.getMaterial().toString() == m)
+            if(r.getMaterial() == m)
             {
-                Bukkit.broadcastMessage("Found result!");
                 return r;
             }
         }
