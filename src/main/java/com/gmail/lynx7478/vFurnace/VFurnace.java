@@ -77,6 +77,10 @@ public class VFurnace implements InventoryHandler {
                 Material currentItemType = e.getCurrentItem().getType();
 
                 // Use CurrentItem for this
+                if(smelting)
+                {
+                    return true;
+                }
                 if(currentItemType != Material.AIR)
                 {
                     if(fuelType != Material.AIR || inType != Material.AIR)
@@ -84,9 +88,11 @@ public class VFurnace implements InventoryHandler {
                         return true;
                     }
                 }
+                Bukkit.broadcastMessage("1");
                 return false;
             }
 
+            Bukkit.broadcastMessage("2");
             return false;
         }
 
@@ -102,7 +108,7 @@ public class VFurnace implements InventoryHandler {
         {
             return true;
         }
-
+        Bukkit.broadcastMessage("3");
         return false;
     }
 
@@ -115,7 +121,7 @@ public class VFurnace implements InventoryHandler {
     {
         if(checkSmelt(e))
         {
-            int ticks = 0;
+            int[] ticks = {0};
             burning = true;
             // Animation
             int taskBurn = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
@@ -123,7 +129,10 @@ public class VFurnace implements InventoryHandler {
                 @Override
                 public void run()
                 {
-                    furnace.setBurnTime((int) Fuel.COAL.getBurnTicks()-ticks, Fuel.COAL.getBurnTicks());
+                    Bukkit.broadcastMessage("tick");
+                    Bukkit.broadcastMessage(Integer.toString(ticks[0]));
+                    furnace.setBurnTime((int) Fuel.COAL.getBurnTicks() - ticks[0], Fuel.COAL.getBurnTicks());
+                    ticks[0] = ticks[0] + 10;
                 }
             },0L, 10L);
 
@@ -136,26 +145,23 @@ public class VFurnace implements InventoryHandler {
                     furnace.getItem(1).setAmount(furnace.getItem(1).getAmount()-1);
                     Main.getInstance().getServer().getScheduler().cancelTask(taskBurn);
                     burn(e);
+                    Bukkit.broadcastMessage("consume");
                 }
             }, Fuel.COAL.getBurnTicks());
         }else
         {
+            Bukkit.broadcastMessage("checkSmelt false");
             burning = false;
         }
     }
 
     private void smelt(InventoryClickEvent e)
     {
-        if(checkSmelt(e))
+        if(checkSmelt(e) || smelting)
         {
-            if(smelting)
-            {
-                return;
-            }
             smelting = true;
             // in = e.getCursor(); Buggy as shit
             inMat = e.getCursor().getType();
-            Bukkit.broadcastMessage(in.getType().toString());
             final int[] cook = {0};
             // Smelting animation.
             int taskSmelt = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
@@ -165,15 +171,8 @@ public class VFurnace implements InventoryHandler {
                 {
                     if(burning)
                     {
-                        int taskSmelt = Main.getInstance().getServer().getScheduler().scheduleSyncRepeatingTask(Main.getInstance(), new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                furnace.setCookTime(cook[0], 200);
-                                cook[0] = cook[0] + 10;
-                            }
-                        },0L,10L);
+                        furnace.setCookTime(cook[0], 200);
+                        cook[0] = cook[0] + 10;
                     }else
                     {
                         furnace.setCookTime(0,0);
@@ -186,6 +185,10 @@ public class VFurnace implements InventoryHandler {
                 @Override
                 public void run()
                 {
+                    if(inMat == Material.AIR || inMat == null)
+                    {
+                        inMat = furnace.getItem(0).getType();
+                    }
                     Result r = Result.getByMaterial(inMat);
 
                     if(out == null || out.getType() == Material.AIR)
@@ -200,13 +203,17 @@ public class VFurnace implements InventoryHandler {
 
                     furnace.setItem(2,out);
 
-                    smelting = false;
-                    smelt(e);
+                    Main.getInstance().getServer().getScheduler().cancelTask(taskSmelt);
 
-                    //TODO: Doesn't resmelt.
+                    smelt(e);
+                    //TODO: Resmelts, doesnt cancel old animation.
                     //TODO: Doesn't seem to consume fuel.
                 }
-            },100L);
+            },200L);
+        }else
+        {
+            smelting = false;
+//            Bukkit.broadcastMessage("checkSmelt false");
         }
     }
 
