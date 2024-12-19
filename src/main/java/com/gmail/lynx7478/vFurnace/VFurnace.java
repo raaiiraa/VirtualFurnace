@@ -61,9 +61,37 @@ public class VFurnace implements InventoryHandler {
     // Slot 1: FUEL
     // Slot 0: IN
     // Slot 2: OUT
+
+    //TODO: Make the inventory click event handle the items. Then have checkSmelt just check if the items are valid.
+    // This should just be the onClick method. Move later.
+    // Note: When moving items into the furnace, the items of the furnace dont update immediately.
+    // They do when moving them out.
+    private void handleItems(InventoryClickEvent e)
+    {
+        ItemStack fuel = furnace.getItem(1);
+        ItemStack in = furnace.getItem(0);
+        ItemStack out = furnace.getItem(2);
+
+        Bukkit.broadcastMessage("FUEL: "+fuel.getType().toString());
+        Bukkit.broadcastMessage("IN: "+in.getType().toString());
+        Bukkit.broadcastMessage("OUT: "+out.getType().toString());
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("Current item: "+e.getCurrentItem().getType().toString());
+        Bukkit.broadcastMessage("Cursor: "+e.getCursor().getType().toString());
+
+        if(e.getSlotType() == InventoryType.SlotType.QUICKBAR ||
+        e.getSlotType() == InventoryType.SlotType.CONTAINER)
+        {
+            if(e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
+            {
+
+            }
+        }
+    }
+
     private boolean checkSmelt(InventoryClickEvent e)
     {
-        Material fuelType = furnace.getItem(1).getType();
+        /** Material fuelType = furnace.getItem(1).getType();
         Material inType = furnace.getItem(0).getType();
         Material outType = furnace.getItem(2).getType();
 
@@ -109,6 +137,7 @@ public class VFurnace implements InventoryHandler {
             return true;
         }
         Bukkit.broadcastMessage("3");
+        return false; **/
         return false;
     }
 
@@ -329,6 +358,7 @@ public class VFurnace implements InventoryHandler {
         || e.getAction() == InventoryAction.PLACE_SOME
         || e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
         {
+            this.handleItems(e);
             if(checkSmelt(e))
             {
                 burn(e);
