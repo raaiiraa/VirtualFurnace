@@ -10,9 +10,6 @@ import org.bukkit.inventory.view.FurnaceView;
 
 public class VFurnace implements InventoryHandler {
 
-    // Slot 1: FUEL
-    // Slot 0: IN
-    // Slot 2: OUT
     private final VFurnace instance;
 
     private final FurnaceView furnace;
@@ -70,7 +67,6 @@ public class VFurnace implements InventoryHandler {
     {
         ItemStack fuel = furnace.getItem(1);
         ItemStack in = furnace.getItem(0);
-        ItemStack out = furnace.getItem(2);
 
         Bukkit.broadcastMessage("FUEL: "+fuel.getType().toString());
         Bukkit.broadcastMessage("IN: "+in.getType().toString());
@@ -78,19 +74,71 @@ public class VFurnace implements InventoryHandler {
         Bukkit.broadcastMessage("");
         Bukkit.broadcastMessage("Current item: "+e.getCurrentItem().getType().toString());
         Bukkit.broadcastMessage("Cursor: "+e.getCursor().getType().toString());
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage("Clicked inventory: "+e.getClickedInventory().toString());
+        Bukkit.broadcastMessage("Slot type:"+e.getSlotType().toString());
 
+        // Shift-click, use current item.
         if(e.getSlotType() == InventoryType.SlotType.QUICKBAR ||
         e.getSlotType() == InventoryType.SlotType.CONTAINER)
         {
             if(e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
             {
+                for(Fuel f : Fuel.values())
+                {
+                    if(e.getCurrentItem().getType() == f.getType())
+                    {
+                        fuel = e.getCurrentItem();
+                    }
+                }
 
+                for(Result r : Result.values())
+                {
+                    if(e.getCurrentItem().getType() == r.getMaterial())
+                    {
+                        in = e.getCurrentItem();
+                    }
+                }
             }
         }
+
+        // Manual move, use cursor.
+        if(e.getSlotType() == InventoryType.SlotType.CRAFTING)
+        {
+            for(Result r : Result.values())
+            {
+                if(e.getCursor().getType() == r.getMaterial())
+                {
+                    in = e.getCursor();
+                }
+            }
+        }else if(e.getSlotType() == InventoryType.SlotType.FUEL)
+        {
+            for(Fuel f : Fuel.values())
+            {
+                if(e.getCursor().getType() == f.getType())
+                {
+                    fuel = e.getCursor();
+                }
+            }
+        }
+
+        this.in = in;
+        this.fuel = fuel;
+
+        Bukkit.broadcastMessage(Boolean.toString(checkSmelt()));
+
+        //TODO: Theres a null pointer here. Fix it.
     }
 
-    private boolean checkSmelt(InventoryClickEvent e)
+    //TODO: Rewrite. Just check if the items are valid and the furnace is ready to smelt.
+    // Probably won't even need the InventoryClick event.
+    private boolean checkSmelt()
     {
+        if(fuel != null && in != null
+        && fuel.getType() != Material.AIR && in.getType() != Material.AIR)
+            return true;
+        return false;
         /** Material fuelType = furnace.getItem(1).getType();
         Material inType = furnace.getItem(0).getType();
         Material outType = furnace.getItem(2).getType();
@@ -138,7 +186,6 @@ public class VFurnace implements InventoryHandler {
         }
         Bukkit.broadcastMessage("3");
         return false; **/
-        return false;
     }
 
     private Fuel getFuel()
@@ -148,7 +195,7 @@ public class VFurnace implements InventoryHandler {
 
     private void burn(InventoryClickEvent e)
     {
-        if(checkSmelt(e))
+        if(checkSmelt())
         {
             int[] ticks = {0};
             burning = true;
@@ -186,7 +233,7 @@ public class VFurnace implements InventoryHandler {
 
     private void smelt(InventoryClickEvent e)
     {
-        if(checkSmelt(e) || smelting)
+        if(checkSmelt() || smelting)
         {
             smelting = true;
             // in = e.getCursor(); Buggy as shit
@@ -359,7 +406,7 @@ public class VFurnace implements InventoryHandler {
         || e.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY)
         {
             this.handleItems(e);
-            if(checkSmelt(e))
+            if(checkSmelt())
             {
                 burn(e);
                 smelt(e);
